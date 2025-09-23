@@ -1,5 +1,7 @@
 # Mini Proyecto: API REST para predicción de Iris con Flask
 
+La Idea de este proyecto mas que el modelo en si, es lograr vizualizar el deploy de modelos a travez de FW como Flask 
+
 Este es un proyecto de ejemplo que implementa una **API REST** utilizando **Flask** para hacer predicciones con un modelo de clasificación entrenado con el dataset **Iris**. El modelo utiliza el clasificador **RandomForestClassifier** de scikit-learn para predecir la clase de una flor de Iris en base a sus características.
 
 ## Descripción
