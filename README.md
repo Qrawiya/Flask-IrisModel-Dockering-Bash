@@ -17,14 +17,21 @@ El modelo predice una de las tres clases:
 - **1**: Versicolor
 - **2**: Virginica
 
-## Requisitos
+## Requisitos en el requirement.txt pero igual mas info aca
 
-Flask==2.1.2
-scikit-learn==1.0.2
-joblib==1.1.0
-requests==2.26.0
-numpy==1.21.4
-pandas==1.3.4
+Docker: 28.4.0 (build d8eb465)
+
+Python base image en Dockerfile: python:3.10-slim
+
+Gunicorn: 20.1.0 (según logs del contenedor)
+
+Flask: (No mencionaste versión explícita, pero probablemente una versión moderna compatible con Python 3.10)
+
+joblib: (no especificada, usar la que tienes en requirements.txt)
+
+NumPy: (igual, versión del requirements.txt)
+
+Flask-CORS: (versión del requirements.txt)
 
 ## Instalación
 
