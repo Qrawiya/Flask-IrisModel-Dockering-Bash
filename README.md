@@ -25,9 +25,9 @@ Python base image en Dockerfile: python:3.10-slim
 
 Gunicorn: 20.1.0 (según logs del contenedor)
 
-Flask: (No mencionaste versión explícita, pero probablemente una versión moderna compatible con Python 3.10)
+Flask: versión moderna compatible con Python 3.10
 
-joblib: (no especificada, usar la que tienes en requirements.txt)
+joblib:  usar la que esta en requirements.txt
 
 NumPy: (igual, versión del requirements.txt)
 
