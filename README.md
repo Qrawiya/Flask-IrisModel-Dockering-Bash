@@ -19,10 +19,12 @@ El modelo predice una de las tres clases:
 
 ## Requisitos
 
-- Python 3.x
-- Flask
-- scikit-learn
-- joblib
+Flask==2.1.2
+scikit-learn==1.0.2
+joblib==1.1.0
+requests==2.26.0
+numpy==1.21.4
+pandas==1.3.4
 
 ## Instalación
 
