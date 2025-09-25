@@ -1,11 +1,11 @@
 #!/bin/bash
-
-set -e  # Detener el script en caso de error
+set -euo pipefail
 
 IMAGE_NAME="iris-api"
 CONTAINER_NAME="iris-api-container"
 HOST_PORT=8000
 CONTAINER_PORT=5000
+BASE_URL="http://localhost:$HOST_PORT"
 
 echo "🔍 Verificando archivos esenciales..."
 for file in Dockerfile requirements.txt app.py model.pkl; do
@@ -15,7 +15,9 @@ for file in Dockerfile requirements.txt app.py model.pkl; do
   fi
 done
 
-# Verificar si el contenedor ya existe y está corriendo
+command -v docker >/dev/null 2>&1 || { echo >&2 "❌ Docker no está instalado o no está en PATH."; exit 1; }
+
+# Detener y eliminar contenedor si existe
 if [ "$(docker ps -q -f name=^/${CONTAINER_NAME}$)" ]; then
   echo "⚠️ El contenedor $CONTAINER_NAME ya está corriendo. Deteniéndolo..."
   docker stop $CONTAINER_NAME
@@ -23,7 +25,6 @@ if [ "$(docker ps -q -f name=^/${CONTAINER_NAME}$)" ]; then
   docker rm $CONTAINER_NAME
 fi
 
-# Verificar si el contenedor existe pero está detenido
 if [ "$(docker ps -aq -f status=exited -f name=^/${CONTAINER_NAME}$)" ]; then
   echo "🗑 Eliminando contenedor detenido $CONTAINER_NAME..."
   docker rm $CONTAINER_NAME
@@ -35,18 +36,25 @@ docker build -t $IMAGE_NAME .
 echo "🚀 Ejecutando contenedor..."
 docker run -d -p $HOST_PORT:$CONTAINER_PORT --name $CONTAINER_NAME $IMAGE_NAME
 
-echo "⏳ Esperando 5 segundos para que la API arranque..."
-sleep 5
+echo "⏳ Esperando a que la API arranque..."
+MAX_RETRIES=10
+for i in $(seq 1 $MAX_RETRIES); do
+  HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/")
+  if [ "$HTTP_STATUS" = "200" ]; then
+    echo "✅ API está corriendo correctamente en $BASE_URL/"
+    break
+  else
+    echo "⏳ Intento $i/$MAX_RETRIES: API aún no responde (status: $HTTP_STATUS), reintentando en 2s..."
+    sleep 2
+  fi
 
-echo "🔗 Probando la API con curl..."
-if curl -X GET http://localhost:$HOST_PORT/; then
-  echo "✅ API está corriendo correctamente en http://localhost:$HOST_PORT/"
-else
-  echo "❌ Falló la prueba GET"
-  echo "📝 Mostrando últimos 20 logs del contenedor para debug:"
-  docker logs --tail 20 $CONTAINER_NAME
-  exit 1
-fi
+  if [ "$i" -eq "$MAX_RETRIES" ]; then
+    echo "❌ No se pudo conectar a la API en $BASE_URL/ después de $MAX_RETRIES intentos."
+    echo "📝 Mostrando últimos 20 logs del contenedor para debug:"
+    docker logs --tail 20 $CONTAINER_NAME
+    exit 1
+  fi
+done
 
 echo "📝 Mostrando últimos 20 logs del contenedor:"
 docker logs --tail 20 $CONTAINER_NAME

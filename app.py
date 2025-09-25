@@ -11,6 +11,13 @@ CORS(app)  # <-- Aplicar CORS a toda la app
 # Cargar el modelo entrenado
 modelo = joblib.load('model.pkl')
 
+# Mapeo de clases numéricas a nombres de flores
+CLASSES = {
+    0: 'setosa',
+    1: 'versicolor',
+    2: 'virginica'
+}
+
 @app.route('/')
 def home():
     return "API lista, El docker esta funcionando correctamente con el Puerto 8000"
@@ -23,7 +30,7 @@ def predict():
 
         # Validar que la clave 'features' esté presente
         if 'features' not in data:
-            return jsonify({'error': 'Missing "features" in request'}), 400
+            return jsonify({'error': 'Missing \"features\" in request'}), 400
         
         features = data['features']
 
@@ -35,13 +42,18 @@ def predict():
         features_array = np.array(features).reshape(1, -1)
 
         # Realizar la predicción
-        prediction = modelo.predict(features_array)
+        prediction = modelo.predict(features_array)[0]
+        class_name = CLASSES.get(int(prediction), "Unknown")
 
-        # Devolver la clase predicha
-        return jsonify({'prediction': int(prediction[0])})
+        # Devolver la clase predicha y su nombre
+        return jsonify({
+            'prediction': int(prediction),
+            'class_name': class_name
+        })
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
+
