@@ -2,16 +2,18 @@
 from flask import Flask, request, jsonify
 import joblib
 import numpy as np
+from flask_cors import CORS  # <-- Importar CORS
 
 # Inicializar la aplicación Flask
 app = Flask(__name__)
+CORS(app)  # <-- Aplicar CORS a toda la app
 
 # Cargar el modelo entrenado
 modelo = joblib.load('model.pkl')
 
 @app.route('/')
 def home():
-    return "API lista"
+    return "API lista, El docker esta funcionando correctamente con el Puerto 8000"
 
 @app.route('/predict', methods=['POST'])
 def predict():
